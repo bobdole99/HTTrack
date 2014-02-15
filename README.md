@@ -24,6 +24,7 @@ to run and compile program:
 >>javac *.java
 
 >>java HTTrack <url>
+
 >>java WebServer <port number>
 
-Assignment description can be found cpsc441_assign1.pdf
+Assignment description can be found cpsc441_assign1.txt
