@@ -1,0 +1,234 @@
+CPSC 441 - Fall 2011
+Assignment 1: HTTrack
+Due: 23:55, Saturday October 16, 2011
+Instructor: Majid Ghaderi
+1Assignment 1
+CPSC 441
+Instructions
+A. Implementation
+The programming language in CPSC 441 is Java. Please note that you are
+not allowed to use any specialized libraries for handling HTML files or send-
+ing/receiving files over the Internet. You are expected to write all the code
+necessary to establish a connection and send/receive files as explained in the
+assignment. You are also expected to write your own code to parse simple
+HTML files used in this assignment.
+B. Submission
+Submissions are handled through Blackboard. Your submission should in-
+clude the following items:
+1. source code files
+2. README: this file must contain instructions on how to run your program
+and which undergrad machine your program was built and tested on.
+You can chose one of the undergraduate machines csc.cpsc, csd.cpsc,
+sce.cpsc, or csl.cpsc in Computer Science department. Your imple-
+mentation will be tested on the specified undergraduate machine. Also,
+clearly specify whether you have implemented the basic server or the
+advanced server for Part 2.
+You are to archive all your files into a zip or tar gzipped file and name it
+according to the following format:
+A1_FirstName_LastName_TutorialSection.zip, or
+A1_FirstName_LastName_TutorialSection.tar.gz
+For example, if your name is John Smith, and you are in tutorial section
+T01, you can submit a file with the name A1_John_Smith_T01.zip using
+the submission link created for Assignment 1.
+On Blackboard, go to the area for Assignments and click on Assignment
+1 link. This will take you to another page where you can upload your com-
+pressed file. Note that pressing the “Save” button does not submit your work;
+you must “Submit” your assignment.
+2Assignment 1
+CPSC 441
+C. Documentation
+No external documentation is required for this assignment, however, you are
+expected to have a reasonable amount of inline code documentation (to help
+yourself and the TAs read your code). You will lose marks if your code is
+unreadable.
+D. Evaluation
+All the work on this assignment is to be completed individually. You can
+study sample code provided in the tutorials or elsewhere (perhaps on the
+Internet) but you have to write your own code for this assignment.
+Overview
+HTTrack (http://www.httrack.com/) is a tool that allows you to down-
+load a web site from the Internet to a local directory, building recursively
+all directories, getting HTML, images, and other files from the server to your
+computer. It arranges the original site’s relative link structure so that the
+mirrored web site can be viewed locally. You simply browse the site from link
+to link using your web browser, as if you were viewing the site online.
+The goal of this assignment is to develop a simplified HTTrack to create a
+mirror of an existing web site. This assignment has three parts, where the
+third part is optional and has bonus marks:
+1. In the first part, your task is to download a copy of a given web site that
+can be browsed off-line.
+2. In the second part, your task is to write a simple web server that allows
+a web browser to access your mirrored web site.
+3. In the third part, you write a program to synchronize your mirrored web
+site with the original site.
+Part 1: HTTrack (60 Marks)
+Given a URL, you must write a client program that downloads the corre-
+sponding HTML document, parse it, and download all HTML documents
+(file.html) referenced in the initial HTML document on the same server. This
+3Assignment 1
+CPSC 441
+means that all documents hosted by servers other than the server hosting
+the initial HTML document will not be downloaded. Apply the same process
+for each downloaded HTML document up to a depth of four with the base
+HTML document being at depth 0.
+http://www.foo.com/d0.html
+d0.html
+d1.html
+d2.html
+d2.html
+d1.html
+dir2/d4.html
+dir1/d3.html
+d3.html
+d4.html
+Figure 1: Original web site.
+Ideally, the mirror web site should reproduce the same directory struc-
+ture as the one maintained by the original web site. For simplicity, in this
+assignment, you only need to store the downloaded files in a flat structure
+(i.e., in the same directory). In this case, your program has to rename the
+downloaded files. Now, in order to allow for off-line browsing of the down-
+loaded HTML documents, these documents should reference each other lo-
+cally. Therefore, each processed link within a parsed HTML document should
+be changed appropriately to point to the renamed local HTML file. You should
+create a directory using the host name part of the URL passed to your pro-
+gram and save all downloaded HTML files there.
+Finally, you need to keep track of the path name of the pages you down-
+load and their corresponding Last-Modified. For example, if the original
+web site has the structure shown in Figure 1 then your program should
+create a database as follows:
+4Assignment 1
+CPSC 441
+Path Name
+d0.html
+d1.html
+d2.html
+dir1/d3.html
+dir2/d4.html
+Local File Name Last Modified
+f1.html
+...
+f2.html
+...
+f3.html
+...
+f4.html
+...
+f5.html
+...
+Your database (name it dbase) should be implemented using a plain text
+file.
+Your program will use HTTP version 1.0. Therefore, no persistent connec-
+tions will be used and your client program will have to close the TCP connec-
+tion after it receives the server response. If the server receives an HTTP/1.0
+request, it will not use persistent connections, even if it is an HTTP/1.1
+server. Instead, the server will close the TCP connection after sending the
+object. This is necessary because an HTTP/1.0 client expects the server to
+close the connection.
+Many HTML links can have URL’s that are very complicated and messy.
+It is important to note that we will not be testing your string parsing skills.
+Therefore, you can safely assume that we will not be testing anything com-
+plicated (see the test web site on the course home page). For the sake of
+simplicity, the hyperlinks to be checked are those structured as follows (you
+can safely ignore everything else in the HTML file):
+<a href="[http://host_name/]path_name"> Some Text </a>
+The above structure shows an optional part between []. When present
+in the hyperlink, the link is called an absolute link because it uses the ab-
+solute pathname (the complete URL) of the file. If the optional part is not
+specified, the link is called a relative link because it specifies the path to the
+linked file relative to the location of the current document (i.e., the parsed
+file containing the link).
+A. Usage
+Your program is called HTTrack which should accept an absolute URL as
+argument. For instance, your program should accept URL: http://people.
+ucalgary.ca/ ̃mghaderi/index.html, where people.ucalgary.ca is the
+host_name and  ̃mghaderi/index.html is the path_name:
+> HTTrack
+<url>
+5Assignment 1
+CPSC 441
+Your program has to parse the URL argument to find the host_name. Then, it
+has to create a directory called host_name and store downloaded files there.
+Your program should download HTML documents only (filename.html). In
+other words, you should not download any images or other types of files.
+Part 2: A Simple Web Server (40 Marks)
+In this step, your task is to write a server program which allows browsers
+to access your mirror web site through the Internet. Your server is only
+required to handle GET requests. Your server program has to check if the
+requested file is available, and if so returns the file to the client. As this
+simplified version of a web server deals with GET only, your program needs
+to return responses with the following status codes only:
+• 200 OK
+• 400 Bad Request
+• 404 Not Found
+One of the key things to keep in mind in building your web server is
+that the server is translating relative filenames (such as d.html) to absolute
+filenames in a local filesystem. For example, assume that files for the web
+server are kept in  ̃/webdisk/public_html/cpsc441/assign1, which we
+call the root directory. When your server gets a request for /d.html, it will
+prepend the root directory to the specified file and determine if the file exists.
+If the file does not exist, a Not Found error is returned. Otherwise, an HTTP
+OK message is returned along with the content of a file.
+At a high level, your web server will be structured as follows:
+Loop (forever)
+Listen for connection requests
+Accept new connection request from client
+Parse HTTP/1.0 request
+Ensure well-formed request (return error otherwise)
+Determine if target file exists (return error otherwise)
+Transmit contents of file over the existing connect
+by performing reads on the file and writes on the socket
+Close the connection
+6Assignment 1
+CPSC 441
+You will implement version 1.0 of HTTP, as defined in RFC 1945 1 .
+Your web server should be able to handle more than one request simul-
+taneously. However, we highly recommend you to first build a basic web
+server that handles only one request at a time and then extend it to handle
+multiple simultaneous requests. Out of the 40 marks, 30 marks are allocated
+to a basic server implementation and the remaining 10 marks are awarded
+for building an advanced server that handles simultaneous connections. In
+your README file, clearly specify whether you have implemented the basic
+server or the advanced server.
+A. Usage
+Your program is called WebServer and takes one argument that specifies the
+port number at which your server should be listening for incoming requests:
+> WebServer
+<port>
+All the requested web pages are in the current directory where your web
+server is running, i.e., the current directory is the web server root directory.
+You can test your server using telnet. Simply telnet to the host running
+your web server at the specified port number. Make sure the port number
+is greater than 1024 and smaller than 65536. Alternatively, you can test your
+web server using a web browser by sending the port number in the URL. For
+example, if your server is running on cse.cpsc.ucalgary.ca at port 2025,
+then you should enter the following URL in your browser to get d.html:
+http://cse.ucalgary.ca:2025/d.html
+Part 3: Updating the Mirror Web Site
+(10 Marks - BONUS)
+In this part, your task is to write a program to update your mirror copy of the
+remote web site. For simplicity, we assume that the file and link structure
+of the original web site remains unchanged, only the content of web pages
+changes. In other words, you do not need to add or delete any file or change
+the name of existing files or links.
+To implement this part, you will use the database that was built in Part 1.
+However, you need to modify your implementation in Part 1 to record the
+1
+http://www.w3.org/Protocols/rfc1945/rfc1945
+7Assignment 1
+CPSC 441
+host_name as well. Your updating program will use this database to check
+if any of the downloaded files have been modified in the original server
+since their respective Last-Modified date as it appears in the maintained
+database. Since we have already a local copy of the files, your program
+should request a file from the original web server only if this file has
+been recently updated by implementing the conditional GET as described
+in the class. In case the requested file has been modified, your program
+should replace the local copy of the file with the new copy received from the
+web server and update the database accordingly. You should not blindly
+download the entire web site again.
+A. Usage
+Your program is called WebSync. It should read the database file you cre-
+ated in Part 1 and download only those files that have been modified. The
+synchronization program is run in the same directory where the downloaded
+files reside.
+8
